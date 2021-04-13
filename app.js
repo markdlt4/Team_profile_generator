@@ -9,38 +9,124 @@ const OUTPUT_DIR = path.resolve(__dirname, "output");
 const outputPath = path.join(OUTPUT_DIR, "team.html");
 
 const render = require("./lib/htmlRenderer");
-    
-const questions = [
-    {
-        type: 'input',
-        message: 'What is your managers name?',
-        name: 'Susan',
-    }
-    {
-        type: 'input',
-        message: 'WHat is your managers id?',
-        id: '10',
-    }
-    {
-        type: 'input',
-        message: 'What is your managers email?',
-        email: 'susan@manager.com',
-    }
-    {
-        type: 'input',
-        message: 'What is your managers office number?',
-        office number: '10',
-    }
-    {
-        type: 'input',
-        message: 'Which type of team member would you like to add?',
-        team member: Engineer
 
-    }
-]
-    
+// creating team funciton form employee js
+let allEmployees = [];
+function createTeam() {
+  return inquirer
+    .prompt([
+      {
+        message: "Select an employee type",
+        choices: ["Manager", "Engineer", "Intern"],
+        type: "list",
+        name: "employeeType",
+      },
+      {
+        message: "Employee name",
+        type: "input",
+        name: "employeeName",
+      },
+      {
+        message: "Employee Id",
+        type: "input",
+        name: "employeeId",
+      },
+      {
+        message: "Employee email",
+        type: "input",
+        name: "employeeEmail",
+      },
+    ])
+    .then(function (res) {
+      const { employeeType } = res;
+      const { employeeName, employeeId, employeeEmail } = res;
 
+      if (employeeType === "Manager") {
+        inquirer
+          .prompt([
+            {
+              message: "Phone number",
+              type: "input",
+              name: "officeNumber",
+            },
+            {
+              message: "Are you done adding?",
+              type: "confirm",
+              name: "done",
+            },
+          ])
+          .then(function (res2) {
+            const { officeNumber } = res2;
+            let manager = new Manager(
+              employeeName,
+              employeeId,
+              employeeEmail,
+              officeNumber
+            );
+            allEmployees.push(manager);
+            res2.done ? compiledAllEmployees() : createTeam();
+          });
+      } else if (employeeType === "Engineer") {
+        inquirer
+          .prompt([
+            {
+              message: "GitHub",
+              type: "input",
+              name: "github",
+            },
+            {
+              message: "Are you done adding?",
+              type: "confirm",
+              name: "done",
+            },
+          ])
+          .then(function (res3) {
+            const { github } = res3;
+            let engineer = new Engineer(
+              employeeName,
+              employeeId,
+              employeeEmail,
+              github
+            );
+            allEmployees.push(engineer);
+            res3.done ? compiledAllEmployees() : createTeam();
+          });
+      } else if (employeeType === "Intern") {
+        inquirer
+          .prompt([
+            {
+              message: "School",
+              type: "input",
+              name: "school",
+            },
+            {
+              message: "Are you done adding?",
+              type: "confirm",
+              name: "done",
+            },
+          ])
+          .then(function (res4) {
+            const { school } = res4;
+            let intern = new Intern(
+              employeeName,
+              employeeId,
+              employeeEmail,
+              school
+            );
+            allEmployees.push(intern);
+            res4.done ? compiledAllEmployees() : createTeam();
+          });
+      }
+    });
+}
 
+createTeam();
+
+function compiledAllEmployees() {
+  fs.writeFile("output/employees.html", render(allEmployees), function (err) {
+    if (err) throw err;
+  });
+}
 
 // Write code to use inquirer to gather information about the development team members,
 // and to create objects for each team member (using the correct classes as blueprints!)
